@@ -10,10 +10,10 @@ interface Props {
   onDelete: (id: string) => void
   defaultOpen?: boolean
 }
-const StatusSection = ({ status, tasks, onEdit, onDelete, defaultOpen = true }: Props) => {
+const StatusSection = ({ status, tasks, onEdit, onDelete, defaultOpen = false }: Props) => {
   const [open, setOpen] = useState(defaultOpen)
   const m = STATUS_META[status]
-
+  console.log(open)
   return (
     <div className='mb-1'>
       <button

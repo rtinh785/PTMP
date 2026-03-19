@@ -9,7 +9,9 @@ import { useTaskFilter } from '~/hooks/useTaskFilter'
 import { useTaskStore } from '~/store/useTaskStore'
 import type { Route } from './+types/home'
 import StatCard from '~/components/StatCard'
-import TaskForm from '~/components/TaskForm'
+
+import type { TaskSchemaType } from '~/schema/taskSchema'
+import { TaskForm } from '~/components/TaskForm'
 
 export function meta({}: Route.MetaArgs) {
   return [{ title: 'New React Router App' }, { name: 'description', content: 'Welcome to React Router!' }]
@@ -157,7 +159,7 @@ export default function Home() {
 
           {/* FILTER BAR */}
           <div className='flex flex-wrap gap-2.5 mb-5'>
-            <div className='relative flex-1 min-w-[180px]'>
+            <div className='relative flex-1 min-w-45'>
               <span className='absolute left-3 top-1/2 -translate-y-1/2 text-slate-300 text-sm pointer-events-none'>
                 🔍
               </span>
@@ -217,7 +219,6 @@ export default function Home() {
                   tasks={byStatus(s)}
                   onEdit={(task: Task) => setModal(task)}
                   onDelete={(id: string) => setDelId(id)}
-                  defaultOpen={s !== Status.DONE}
                 />
               ))}
             </div>
@@ -230,7 +231,9 @@ export default function Home() {
         <Modal title={modal === 'add' ? 'Tạo công việc mới' : 'Chỉnh sửa công việc'} onClose={() => setModal(null)}>
           <TaskForm
             initial={modal === 'add' ? undefined : modal}
-            onSave={(form) => (modal === 'add' ? addTask(form) : updateTask((modal as Task).id, form))}
+            onSave={(data: TaskSchemaType) => {
+              return modal === 'add' ? addTask(data) : updateTask((modal as Task).id, data)
+            }}
             onClose={() => setModal(null)}
           />
         </Modal>

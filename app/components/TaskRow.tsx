@@ -3,7 +3,6 @@ import DeadlineChip from '~/components/DeadlineChip'
 import IconBtn from '~/components/IconBtn'
 import PriorityLabel from '~/components/PriorityLabel'
 import StatusPill from '~/components/StatusPill'
-import { STATUS_META } from '~/constants'
 import { isOverdue, isNear } from '~/hooks/useTaskFilter'
 import { useTaskStore } from '~/store/useTaskStore'
 
@@ -16,10 +15,8 @@ const TaskRow = ({ task, onEdit, onDelete }: Props) => {
   const changeStatus = useTaskStore((s) => s.changeStatus)
   const done = task.status === Status.DONE
   const inProg = task.status === Status.IN_PROGRESS
-  const sm = STATUS_META[task.status]
 
-  // Click vào circle → chuyển sang status tiếp theo
-  const handleCycleStatus = ({ task, onEdit, onDelete }: Props) => {
+  const handleCycleStatus = ({ task }: { task: Task }) => {
     const order = [Status.TODO, Status.IN_PROGRESS, Status.DONE]
     const next = order[(order.indexOf(task.status) + 1) % order.length]
     changeStatus(task.id, next)
@@ -38,11 +35,10 @@ const TaskRow = ({ task, onEdit, onDelete }: Props) => {
       transition-colors duration-150 hover:bg-slate-50
       border-l-[3px] border-transparent hover:border-indigo-400'
     >
-      {/* Circle toggle */}
       <button
-        onClick={() => handleCycleStatus({ task, onEdit, onDelete })}
+        onClick={() => handleCycleStatus({ task })}
         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
-          flex-shrink-0 transition-all duration-150
+          shrink-0 transition-all duration-150
           ${done ? 'bg-emerald-500 border-emerald-500' : inProg ? 'border-amber-400' : 'border-indigo-400'}`}
       >
         {done && <span className='text-white text-[10px]'>✓</span>}
@@ -68,7 +64,7 @@ const TaskRow = ({ task, onEdit, onDelete }: Props) => {
       {/* Actions */}
       <div
         className='flex gap-0.5 opacity-0 group-hover:opacity-100
-        transition-opacity duration-150 flex-shrink-0'
+        transition-opacity duration-150 shrink-0'
       >
         <IconBtn icon='✎' title='Sửa' onClick={() => onEdit(task)} />
         <IconBtn icon='✕' title='Xóa' onClick={() => onDelete(task.id)} danger />

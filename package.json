@@ -14,12 +14,15 @@
     "lint:fix": "eslint . --fix"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@react-router/node": "7.12.0",
     "@react-router/serve": "7.12.0",
     "isbot": "^5.1.31",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-hook-form": "^7.71.2",
     "react-router": "7.12.0",
+    "yup": "^1.7.1",
     "zustand": "^5.0.12"
   },
   "devDependencies": {

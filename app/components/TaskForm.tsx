@@ -1,102 +1,165 @@
-import { useState } from 'react'
-import type { Task, TaskFormType } from '~/@types'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { useForm } from 'react-hook-form'
+import type { Task } from '~/@types'
 import { Status, Priority } from '~/@types'
-import Field from '~/components/Field'
-import { EMPTY_FORM } from '~/constants'
+import { taskSchema, type TaskSchemaType } from '~/schema/taskSchema'
+
+const inputCls = `
+  w-full px-3 py-2.5 bg-slate-50 border rounded-xl
+  text-slate-800 text-sm outline-none
+  focus:bg-white transition-all duration-150
+`
 
 interface Props {
-  initial?: Task
-  onSave: (form: TaskFormType) => void
+  initial?: Task // có → edit mode, không → add mode
+  onSave: (form: TaskSchemaType) => void
   onClose: () => void
 }
 
-const inputCls = `w-full px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl
-  text-slate-800 text-sm outline-none focus:border-indigo-400 focus:bg-white
-  transition-all duration-150`
-const TaskForm = ({ initial, onSave, onClose }: Props) => {
-  const [form, setForm] = useState<TaskFormType>(
-    initial
-      ? {
-          title: initial.title,
-          description: initial.description,
-          status: initial.status,
-          priority: initial.priority,
-          deadline: initial.deadline
-        }
-      : EMPTY_FORM
-  )
+export function TaskForm({ initial, onSave, onClose }: Props) {
+  const {
+    register,
+    // register dùng để nối input với react-hook-form
+    // mỗi input gọi {...register("tên field")} là form tự quản lý
 
-  const set = <K extends keyof TaskFormType>(key: K, val: TaskFormType[K]) => setForm((f) => ({ ...f, [key]: val }))
+    handleSubmit,
+    // handleSubmit bọc ngoài onSubmit
+    // tự validate trước, nếu pass thì mới gọi hàm bên trong
 
-  const valid = form.title.trim().length > 0
+    formState: { errors }
+    // errors chứa lỗi của từng field sau khi validate
+    // errors.title?.message = thông báo lỗi của field title
+  } = useForm<TaskSchemaType>({
+    resolver: yupResolver(taskSchema),
+    // nói cho react-hook-form dùng yup để validate
 
-  const handleSave = () => {
-    if (!valid) return
-    onSave(form)
+    defaultValues: {
+      // nếu có initial (edit mode) thì điền sẵn data vào form
+      // không có thì dùng giá trị mặc định
+      title: initial?.title ?? '',
+      description: initial?.description ?? '',
+      status: initial?.status ?? Status.TODO,
+      priority: initial?.priority ?? Priority.MEDIUM,
+      deadline: initial?.deadline ?? ''
+    }
+  })
+
+  const onSubmit = (data: TaskSchemaType) => {
+    // data ở đây đã pass validate rồi mới vào được đây
+    onSave(data)
     onClose()
   }
 
   return (
-    <>
-      <Field label='Tên công việc *'>
+    <form onSubmit={handleSubmit(onSubmit)}>
+      {/* handleSubmit tự validate trước khi gọi onSubmit */}
+
+      {/* TITLE */}
+      <div className='mb-4'>
+        <label
+          className='block text-[11px] font-bold text-slate-400
+          uppercase tracking-widest mb-1.5'
+        >
+          Tên công việc *
+        </label>
         <input
-          className={inputCls}
-          value={form.title}
-          autoFocus
+          {...register('title')}
+          // {...register('title')} nối input này với field "title" trong form
+          // react-hook-form tự theo dõi value, onChange, onBlur
+          className={`${inputCls} ${
+            errors.title
+              ? 'border-red-300 focus:border-red-400' // có lỗi → viền đỏ
+              : 'border-slate-200 focus:border-indigo-400' // không lỗi → viền tím
+          }`}
           placeholder='Nhập tên công việc...'
-          onChange={(e) => set('title', e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleSave()
-          }}
+          autoFocus
         />
-      </Field>
-
-      <Field label='Mô tả'>
-        <textarea
-          className={`${inputCls} resize-y min-h-[80px]`}
-          value={form.description}
-          placeholder='Mô tả ngắn gọn (tuỳ chọn)...'
-          onChange={(e) => set('description', e.target.value)}
-        />
-      </Field>
-
-      <div className='grid grid-cols-3 gap-3'>
-        <Field label='Trạng thái'>
-          <select className={inputCls} value={form.status} onChange={(e) => set('status', e.target.value as Status)}>
-            {Object.values(Status).map((s) => (
-              <option key={s} value={s}>
-                {s === Status.TODO ? 'To Do' : s === Status.IN_PROGRESS ? 'In Progress' : 'Done'}
-              </option>
-            ))}
-          </select>
-        </Field>
-
-        <Field label='Ưu tiên'>
-          <select
-            className={inputCls}
-            value={form.priority}
-            onChange={(e) => set('priority', e.target.value as Priority)}
-          >
-            {Object.values(Priority).map((p) => (
-              <option key={p} value={p}>
-                {p}
-              </option>
-            ))}
-          </select>
-        </Field>
-
-        <Field label='Deadline'>
-          <input
-            type='date'
-            className={inputCls}
-            value={form.deadline}
-            onChange={(e) => set('deadline', e.target.value)}
-          />
-        </Field>
+        {/* Hiện thông báo lỗi nếu có */}
+        {errors.title && <p className='text-red-400 text-[11px] mt-1 font-medium'>{errors.title.message}</p>}
       </div>
 
-      <div className='flex gap-2 justify-end mt-1'>
+      {/* DESCRIPTION */}
+      <div className='mb-4'>
+        <label
+          className='block text-[11px] font-bold text-slate-400
+          uppercase tracking-widest mb-1.5'
+        >
+          Mô tả
+        </label>
+        <textarea
+          {...register('description')}
+          className={`${inputCls} resize-y min-h-20 ${
+            errors.description ? 'border-red-300 focus:border-red-400' : 'border-slate-200 focus:border-indigo-400'
+          }`}
+          placeholder='Mô tả ngắn gọn (tuỳ chọn)...'
+        />
+        {errors.description && (
+          <p className='text-red-400 text-[11px] mt-1 font-medium'>{errors.description.message}</p>
+        )}
+      </div>
+
+      {/* STATUS + PRIORITY + DEADLINE */}
+      <div className='grid grid-cols-3 gap-3 mb-4'>
+        <div>
+          <label
+            className='block text-[11px] font-bold text-slate-400
+            uppercase tracking-widest mb-1.5'
+          >
+            Trạng thái
+          </label>
+          <select
+            {...register('status')}
+            className={`${inputCls} cursor-pointer ${
+              errors.status ? 'border-red-300' : 'border-slate-200 focus:border-indigo-400'
+            }`}
+          >
+            <option value={Status.TODO}>To Do</option>
+            <option value={Status.IN_PROGRESS}>In Progress</option>
+            <option value={Status.DONE}>Done</option>
+          </select>
+          {errors.status && <p className='text-red-400 text-[11px] mt-1 font-medium'>{errors.status.message}</p>}
+        </div>
+
+        <div>
+          <label
+            className='block text-[11px] font-bold text-slate-400
+            uppercase tracking-widest mb-1.5'
+          >
+            Ưu tiên
+          </label>
+          <select
+            {...register('priority')}
+            className={`${inputCls} cursor-pointer ${
+              errors.priority ? 'border-red-300' : 'border-slate-200 focus:border-indigo-400'
+            }`}
+          >
+            <option value={Priority.LOW}>Low</option>
+            <option value={Priority.MEDIUM}>Medium</option>
+            <option value={Priority.HIGH}>High</option>
+          </select>
+          {errors.priority && <p className='text-red-400 text-[11px] mt-1 font-medium'>{errors.priority.message}</p>}
+        </div>
+
+        <div>
+          <label
+            className='block text-[11px] font-bold text-slate-400
+            uppercase tracking-widest mb-1.5'
+          >
+            Deadline
+          </label>
+          <input
+            type='date'
+            {...register('deadline')}
+            className={`${inputCls} ${errors.deadline ? 'border-red-300' : 'border-slate-200 focus:border-indigo-400'}`}
+          />
+          {errors.deadline && <p className='text-red-400 text-[11px] mt-1 font-medium'>{errors.deadline.message}</p>}
+        </div>
+      </div>
+
+      {/* BUTTONS */}
+      <div className='flex gap-2 justify-end'>
         <button
+          type='button'
           onClick={onClose}
           className='px-4 py-2 rounded-xl border border-slate-200 text-slate-500
             text-sm font-semibold hover:bg-slate-50 transition-colors'
@@ -104,20 +167,14 @@ const TaskForm = ({ initial, onSave, onClose }: Props) => {
           Hủy
         </button>
         <button
-          onClick={handleSave}
-          disabled={!valid}
-          className={`px-5 py-2 rounded-xl text-sm font-bold transition-colors
-            ${
-              valid
-                ? 'bg-indigo-600 text-white hover:bg-indigo-700 shadow shadow-indigo-200'
-                : 'bg-slate-100 text-slate-400 cursor-not-allowed'
-            }`}
+          type='submit'
+          // type submit → bấm vào sẽ trigger handleSubmit → validate → onSubmit
+          className='px-5 py-2 rounded-xl text-sm font-bold transition-colors
+            bg-indigo-600 text-white hover:bg-indigo-700 shadow shadow-indigo-200'
         >
           {initial ? 'Lưu thay đổi' : 'Tạo task'}
         </button>
       </div>
-    </>
+    </form>
   )
 }
-
-export default TaskForm
