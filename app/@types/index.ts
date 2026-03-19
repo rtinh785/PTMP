@@ -20,7 +20,7 @@ export interface Task {
   createdAt: string
 }
 
-export type TaskForm = Omit<Task, 'id' | 'createdAt'>
+export type TaskFormType = Omit<Task, 'id' | 'createdAt'>
 
 export interface TaskStats {
   total: number

@@ -1,15 +1,14 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { Task, TaskForm, Status } from '~/@types'
+import type { Task, TaskFormType, Status } from '~/@types'
 
 const uid = (): string => `t_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
 
 interface TaskStore {
   tasks: Task[]
 
-  // CRUD
-  addTask: (form: TaskForm) => void
-  updateTask: (id: string, form: TaskForm) => void
+  addTask: (form: TaskFormType) => void
+  updateTask: (id: string, form: TaskFormType) => void
   deleteTask: (id: string) => void
   changeStatus: (id: string, status: Status) => void
 }

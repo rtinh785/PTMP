@@ -1,5 +1,5 @@
 import { Status, Priority } from '~/@types'
-import type { TaskForm } from '~/@types'
+import type { TaskFormType } from '~/@types'
 
 export interface StatusMeta {
   label: string
@@ -47,7 +47,7 @@ export const PRIORITY_META: Record<Priority, PriorityMeta> = {
   [Priority.HIGH]: { color: 'text-red-500' }
 }
 
-export const EMPTY_FORM: TaskForm = {
+export const EMPTY_FORM: TaskFormType = {
   title: '',
   description: '',
   status: Status.TODO,
