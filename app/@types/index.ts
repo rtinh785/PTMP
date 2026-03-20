@@ -38,3 +38,11 @@ export interface FilterState {
 }
 
 export type ModalState = null | 'add' | Task
+
+export type SortField = 'deadline' | 'priority' | 'createdAt'
+export type SortOrder = 'asc' | 'desc'
+
+export interface SortState {
+  field: SortField
+  order: SortOrder
+}

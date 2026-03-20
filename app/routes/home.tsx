@@ -9,7 +9,7 @@ import { useTaskFilter } from '~/hooks/useTaskFilter'
 import { useTaskStore } from '~/store/useTaskStore'
 import type { Route } from './+types/home'
 import StatCard from '~/components/StatCard'
-
+import type { SortState, SortField } from '~/@types'
 import type { TaskSchemaType } from '~/schema/taskSchema'
 import { TaskForm } from '~/components/TaskForm'
 
@@ -30,9 +30,14 @@ export default function Home() {
     priority: 'All'
   })
 
+  const [sort, setSort] = useState<SortState>({
+    field: 'createdAt',
+    order: 'desc'
+  })
+
   const { addTask, updateTask, deleteTask } = useTaskStore()
 
-  const { stats, byStatus } = useTaskFilter(filter)
+  const { stats, byStatus } = useTaskFilter(filter, sort)
 
   const setF = <K extends keyof FilterState>(key: K, val: FilterState[K]) => setFilter((f) => ({ ...f, [key]: val }))
 
@@ -47,7 +52,6 @@ export default function Home() {
       updateTask((modal as Task).id, data)
       toast.success('Cập nhật task thành công!')
     }
-    setModal(null)
   }
 
   const doneWidth = stats.total ? Math.round((stats.done / stats.total) * 100) : 0
@@ -199,6 +203,21 @@ export default function Home() {
             </select>
             <select
               className={inputCls}
+              value={`${sort.field}-${sort.order}`}
+              onChange={(e) => {
+                const [field, order] = e.target.value.split('-')
+                setSort({ field: field as SortField, order: order as 'asc' | 'desc' })
+              }}
+            >
+              <option value='createdAt-desc'>Mới nhất</option>
+              <option value='createdAt-asc'>Cũ nhất</option>
+              <option value='deadline-asc'>Deadline gần nhất</option>
+              <option value='deadline-desc'>Deadline xa nhất</option>
+              <option value='priority-desc'>Ưu tiên cao nhất</option>
+              <option value='priority-asc'>Ưu tiên thấp nhất</option>
+            </select>
+            <select
+              className={inputCls}
               value={filter.priority}
               onChange={(e) => setF('priority', e.target.value as Priority | 'All')}
             >
@@ -234,6 +253,7 @@ export default function Home() {
                   tasks={byStatus(s)}
                   onEdit={(task: Task) => setModal(task)}
                   onDelete={(id: string) => setDelId(id)}
+                  defaultOpen={s === Status.TODO || s === Status.IN_PROGRESS}
                 />
               ))}
             </div>
