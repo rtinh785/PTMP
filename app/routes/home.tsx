@@ -50,6 +50,10 @@ export default function Home() {
     setModal(null)
   }
 
+  const doneWidth = stats.total ? Math.round((stats.done / stats.total) * 100) : 0
+  const progWidth = stats.total ? Math.round((stats.prog / stats.total) * 100) : 0
+  const todoWidth = stats.total ? 100 - doneWidth - progWidth : 0
+
   return (
     <>
       <div className='min-h-screen bg-[#f4f5f9]'>
@@ -144,9 +148,9 @@ export default function Home() {
                 <span className='text-[13px] font-black text-indigo-600'>{donePct}% hoàn thành</span>
               </div>
               <div className='flex h-2 rounded-full overflow-hidden bg-slate-100'>
-                <div className='bg-emerald-400 transition-all duration-700' style={{ flex: stats.done }} />
-                <div className='bg-amber-400  transition-all duration-700' style={{ flex: stats.prog }} />
-                <div className='bg-indigo-200 transition-all duration-700' style={{ flex: stats.todo }} />
+                <div className='bg-emerald-400 transition-all duration-700' style={{ width: `${doneWidth}%` }} />
+                <div className='bg-amber-400  transition-all duration-700' style={{ width: `${progWidth}%` }} />
+                <div className='bg-indigo-200 transition-all duration-700' style={{ width: `${todoWidth}%` }} />
               </div>
               <div className='flex flex-wrap gap-4 mt-3'>
                 {[
