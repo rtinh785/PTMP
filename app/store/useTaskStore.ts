@@ -2,8 +2,6 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import type { Task, TaskFormType, Status } from '~/@types'
 
-const uid = (): string => `t_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`
-
 interface TaskStore {
   tasks: Task[]
 
@@ -24,7 +22,7 @@ export const useTaskStore = create<TaskStore>()(
             ...state.tasks,
             {
               ...form,
-              id: uid(),
+              id: crypto.randomUUID(),
               createdAt: new Date().toISOString()
             }
           ]

@@ -14,7 +14,7 @@ export const isNear = (deadline: string, status: Status): boolean => {
   if (!deadline || status === Status.DONE) return false
   const date = new Date(deadline)
   return isWithinInterval(date, {
-    start: startOfDay(new Date()),
+    start: new Date(),
     end: addDays(new Date(), 3)
   })
 }
@@ -44,7 +44,9 @@ export function useTaskFilter(filter: FilterState) {
     })
   }, [tasks, filter])
 
-  const byStatus = (status: Status): Task[] => filtered.filter((t) => t.status === status)
+  const byStatus = useMemo(() => {
+    return (status: Status) => filtered.filter((t) => t.status === status)
+  }, [filtered])
 
   return { stats, filtered, byStatus }
 }

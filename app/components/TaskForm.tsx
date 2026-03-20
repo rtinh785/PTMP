@@ -17,7 +17,11 @@ export function TaskForm({ initial, onSave, onClose }: Props) {
     handleSubmit,
     formState: { errors }
   } = useForm<TaskSchemaType>({
-    resolver: yupResolver(taskSchema),
+    resolver: yupResolver(taskSchema, {
+      context: {
+        initialDeadline: initial?.deadline ?? ''
+      }
+    }),
     defaultValues: {
       title: initial?.title ?? '',
       description: initial?.description ?? '',

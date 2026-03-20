@@ -14,7 +14,6 @@ interface Props {
 const StatusSection = ({ status, tasks, onEdit, onDelete, defaultOpen = false }: Props) => {
   const [open, setOpen] = useState(defaultOpen)
   const m = STATUS_META[status]
-  console.log(open)
   return (
     <div className='mb-1'>
       <button

@@ -23,7 +23,11 @@ export const taskSchema = yup.object({
   deadline: yup
     .string()
     .default('')
-    .test('is-future-date', 'Deadline phải là ngày trong tương lai', (value) => {
+    .test('is-future-date', 'Deadline phải là ngày trong tương lai', (value, context) => {
+      const date = new Date(value)
+      if (isNaN(date.getTime())) return true
+      const initialDeadline = context?.options?.context?.initialDeadline
+      if (initialDeadline && value === initialDeadline) return true
       return new Date(value) > new Date()
     })
 })
