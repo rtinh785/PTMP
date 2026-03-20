@@ -82,7 +82,7 @@ export default function Home() {
               onClick={() => setModal('add')}
               className='flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600
                 text-white text-sm font-bold hover:bg-indigo-700 transition-colors
-                shadow shadow-indigo-200'
+                shadow shadow-indigo-200 '
             >
               <span className='text-lg leading-none'>+</span> Thêm task
             </button>
@@ -91,7 +91,7 @@ export default function Home() {
 
         <main className='max-w-5xl mx-auto px-6 py-7 pb-16'>
           {/* PAGE TITLE */}
-          <div className='flex items-baseline gap-3 mb-5'>
+          <section className='flex items-baseline gap-3 mb-5'>
             <h1
               className='font-black text-[26px] text-slate-800 tracking-tight'
               style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}
@@ -106,10 +106,10 @@ export default function Home() {
                 year: 'numeric'
               })}
             </span>
-          </div>
+          </section>
 
           {/* STAT CARDS */}
-          <div className='grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-4'>
+          <section className='grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-4'>
             <StatCard
               value={stats.total}
               label='Tổng số task'
@@ -142,7 +142,7 @@ export default function Home() {
               valueColor='text-red-500'
               barColor='bg-red-400'
             />
-          </div>
+          </section>
 
           {/* PROGRESS CARD */}
           {stats.total > 0 && (
@@ -190,19 +190,19 @@ export default function Home() {
               />
             </div>
             <select
-              className={inputCls}
+              className={`${inputCls} cursor-pointer`}
               value={filter.status}
               onChange={(e) => setF('status', e.target.value as Status | 'All')}
             >
               <option value='All'>Tất cả trạng thái</option>
               {Object.values(Status).map((s) => (
-                <option key={s} value={s}>
+                <option key={s} value={s} className='cursor-pointer'>
                   {STATUS_META[s].label}
                 </option>
               ))}
             </select>
             <select
-              className={inputCls}
+              className={`${inputCls} cursor-pointer`}
               value={`${sort.field}-${sort.order}`}
               onChange={(e) => {
                 const [field, order] = e.target.value.split('-')
@@ -217,13 +217,13 @@ export default function Home() {
               <option value='priority-asc'>Ưu tiên thấp nhất</option>
             </select>
             <select
-              className={inputCls}
+              className={`${inputCls} cursor-pointer`}
               value={filter.priority}
               onChange={(e) => setF('priority', e.target.value as Priority | 'All')}
             >
               <option value='All'>Tất cả ưu tiên</option>
               {Object.values(Priority).map((p) => (
-                <option key={p} value={p}>
+                <option key={p} value={p} className='cursor-pointer'>
                   {p}
                 </option>
               ))}

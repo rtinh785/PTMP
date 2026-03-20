@@ -117,7 +117,7 @@ export function TaskForm({ initial, onSave, onClose }: Props) {
           >
             Deadline
           </label>
-          <input type='date' {...register('deadline')} className={getInputCls(!!errors.deadline)} />
+          <input type='date' {...register('deadline')} className={`${getInputCls(!!errors.deadline)} cursor-pointer`} />
           {errors.deadline && <p className='text-red-400 text-[11px] mt-1 font-medium'>{errors.deadline.message}</p>}
         </div>
       </div>
