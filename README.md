@@ -113,4 +113,51 @@ Production preview sẽ chạy tại `http://localhost:3001`.
 
 ---
 
+## Technical Decisions
+
+### 1. React Router v7 thay vì Next.js hay Vite + React thuần
+
+Đề bài yêu cầu SPA nên chọn React Router v7 với `ssr: false`. So với Next.js thì nhẹ hơn, không có overhead của SSR/RSC. So với Vite + React thuần thì có sẵn routing, file-based convention, và type-safe route params nếu cần mở rộng thêm trang sau này.
+
+### 2. Zustand thay vì Redux hay Context API
+
+Zustand có boilerplate tối thiểu — chỉ cần 1 file `useTaskStore.ts` là đủ toàn bộ global state. `persist` middleware tích hợp sẵn giúp sync với `localStorage` tự động mà không cần viết thêm bất kỳ logic nào. Context API không có built-in persistence và dễ gây re-render không cần thiết khi state lớn hơn.
+
+### 3. React Hook Form + Yup thay vì controlled inputs
+
+Controlled inputs với `useState` cho mỗi field sẽ re-render component mỗi lần gõ. React Hook Form dùng uncontrolled inputs — chỉ re-render khi submit hoặc khi có lỗi. Yup tách biệt validation logic ra khỏi component, dễ test và tái sử dụng. Schema `taskSchema.ts` cũng handle edge case như deadline cũ khi edit (so sánh với `initialDeadline` qua context).
+
+### 4. date-fns thay vì `new Date()` thủ công
+
+Các phép tính ngày tháng bằng `getTime()` thủ công dễ sai với múi giờ và edge case (đầu/cuối ngày). `date-fns` cung cấp các hàm rõ nghĩa như `isPast`, `isToday`, `isWithinInterval`, `addDays` — code dễ đọc và ít bug hơn.
+
+### 5. `cn` utility (clsx + tailwind-merge)
+
+Tailwind có vấn đề conflict class khi dùng conditional — ví dụ `border-slate-200 border-red-300` cùng lúc browser không biết dùng cái nào. `tailwind-merge` resolve conflict, `clsx` xử lý falsy values. Gộp vào hàm `cn()` để dùng nhất quán toàn project.
+
+### 6. Stats tính trên toàn bộ tasks, không bị ảnh hưởng bởi filter
+
+Dashboard stats (tổng, done, overdue...) luôn reflect thực tế — không thay đổi khi user đang search hay filter. Chỉ danh sách task bên dưới mới bị ảnh hưởng bởi filter. Đây là UX decision để stats luôn đáng tin cậy.
+
+### 7. Sort kết hợp với filter trong cùng `useTaskFilter`
+
+Sort được apply sau filter — kết quả filter xong mới sort. Tách riêng thành hook để `home.tsx` không chứa logic phức tạp, chỉ quản lý UI state (modal, filter, sort).
+
+---
+
+## What I Would Improve
+
+### Nếu có thêm thời gian, những thứ sẽ được cải thiện:
+
+**1. Dark mode**
+Hiện tại UI dùng màu cứng (light only). Sẽ migrate sang CSS variables + Tailwind `dark:` class, dùng `next-themes` để toggle và persist preference.
+
+**2. Optimistic updates & undo**
+Khi xóa task, hiện toast với nút "Undo" trong vài giây. Nếu user bấm Undo thì restore lại task, không thì xóa hẳn.
+
+**3. Export data**
+Cho phép export danh sách task ra CSV hoặc JSON để backup hoặc import sang app khác.
+
+---
+
 Built with ❤️ using React Router, Zustand & Tailwind CSS.
