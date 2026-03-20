@@ -14,7 +14,7 @@ import type { TaskSchemaType } from '~/schema/taskSchema'
 import { TaskForm } from '~/components/TaskForm'
 
 export function meta({}: Route.MetaArgs) {
-  return [{ title: 'New React Router App' }, { name: 'description', content: 'Welcome to React Router!' }]
+  return [{ title: 'Todo App' }, { name: 'description', content: 'A simple todo app' }]
 }
 
 const inputCls = `px-3 py-2.5 bg-slate-50 border border-slate-200 rounded-xl
