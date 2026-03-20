@@ -1,3 +1,7 @@
+import { cn } from '~/libs/cn'
+import { format } from 'date-fns'
+import { vi } from 'date-fns/locale'
+
 export type DeadlineVariant = 'normal' | 'near' | 'overdue'
 
 interface Props {
@@ -17,12 +21,16 @@ const ICONS: Record<DeadlineVariant, string> = {
 }
 const DeadlineChip = ({ date, variant = 'normal' }: Props) => {
   if (!date) return null
+  const formatted = format(new Date(date), 'dd MMM', { locale: vi })
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md
-      text-[11px] font-semibold border ${STYLES[variant]}`}
+      className={cn(
+        'inline-flex items-center gap-1 px-2 py-0.5 rounded-md',
+        'text-[11px] font-semibold border',
+        STYLES[variant]
+      )}
     >
-      {ICONS[variant]} {date}
+      {ICONS[variant]} {formatted}
     </span>
   )
 }

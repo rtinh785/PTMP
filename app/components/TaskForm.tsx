@@ -2,16 +2,11 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
 import type { Task } from '~/@types'
 import { Status, Priority } from '~/@types'
+import { cn } from '~/libs/cn'
 import { taskSchema, type TaskSchemaType } from '~/schema/taskSchema'
 
-const inputCls = `
-  w-full px-3 py-2.5 bg-slate-50 border rounded-xl
-  text-slate-800 text-sm outline-none
-  focus:bg-white transition-all duration-150
-`
-
 interface Props {
-  initial?: Task // có → edit mode, không → add mode
+  initial?: Task
   onSave: (form: TaskSchemaType) => void
   onClose: () => void
 }
@@ -19,23 +14,11 @@ interface Props {
 export function TaskForm({ initial, onSave, onClose }: Props) {
   const {
     register,
-    // register dùng để nối input với react-hook-form
-    // mỗi input gọi {...register("tên field")} là form tự quản lý
-
     handleSubmit,
-    // handleSubmit bọc ngoài onSubmit
-    // tự validate trước, nếu pass thì mới gọi hàm bên trong
-
     formState: { errors }
-    // errors chứa lỗi của từng field sau khi validate
-    // errors.title?.message = thông báo lỗi của field title
   } = useForm<TaskSchemaType>({
     resolver: yupResolver(taskSchema),
-    // nói cho react-hook-form dùng yup để validate
-
     defaultValues: {
-      // nếu có initial (edit mode) thì điền sẵn data vào form
-      // không có thì dùng giá trị mặc định
       title: initial?.title ?? '',
       description: initial?.description ?? '',
       status: initial?.status ?? Status.TODO,
@@ -44,41 +27,37 @@ export function TaskForm({ initial, onSave, onClose }: Props) {
     }
   })
 
+  const getInputCls = (hasError: boolean) =>
+    cn(
+      'w-full px-3 py-2.5 bg-slate-50 border rounded-xl',
+      'text-slate-800 text-sm outline-none',
+      'focus:bg-white transition-all duration-150',
+      hasError ? 'border-red-300 focus:border-red-400' : 'border-slate-200 focus:border-indigo-400'
+    )
+
   const onSubmit = (data: TaskSchemaType) => {
-    // data ở đây đã pass validate rồi mới vào được đây
     onSave(data)
-    onClose()
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      {/* handleSubmit tự validate trước khi gọi onSubmit */}
-
-      {/* TITLE */}
       <div className='mb-4'>
         <label
           className='block text-[11px] font-bold text-slate-400
           uppercase tracking-widest mb-1.5'
         >
-          Tên công việc *
+          Tên công việc
         </label>
         <input
           {...register('title')}
-          // {...register('title')} nối input này với field "title" trong form
-          // react-hook-form tự theo dõi value, onChange, onBlur
-          className={`${inputCls} ${
-            errors.title
-              ? 'border-red-300 focus:border-red-400' // có lỗi → viền đỏ
-              : 'border-slate-200 focus:border-indigo-400' // không lỗi → viền tím
-          }`}
+          className={getInputCls(!!errors.title)}
           placeholder='Nhập tên công việc...'
           autoFocus
         />
-        {/* Hiện thông báo lỗi nếu có */}
+
         {errors.title && <p className='text-red-400 text-[11px] mt-1 font-medium'>{errors.title.message}</p>}
       </div>
 
-      {/* DESCRIPTION */}
       <div className='mb-4'>
         <label
           className='block text-[11px] font-bold text-slate-400
@@ -88,9 +67,7 @@ export function TaskForm({ initial, onSave, onClose }: Props) {
         </label>
         <textarea
           {...register('description')}
-          className={`${inputCls} resize-y min-h-20 ${
-            errors.description ? 'border-red-300 focus:border-red-400' : 'border-slate-200 focus:border-indigo-400'
-          }`}
+          className={cn(getInputCls(!!errors.description), 'resize-y min-h-20')}
           placeholder='Mô tả ngắn gọn (tuỳ chọn)...'
         />
         {errors.description && (
@@ -98,7 +75,6 @@ export function TaskForm({ initial, onSave, onClose }: Props) {
         )}
       </div>
 
-      {/* STATUS + PRIORITY + DEADLINE */}
       <div className='grid grid-cols-3 gap-3 mb-4'>
         <div>
           <label
@@ -107,12 +83,7 @@ export function TaskForm({ initial, onSave, onClose }: Props) {
           >
             Trạng thái
           </label>
-          <select
-            {...register('status')}
-            className={`${inputCls} cursor-pointer ${
-              errors.status ? 'border-red-300' : 'border-slate-200 focus:border-indigo-400'
-            }`}
-          >
+          <select {...register('status')} className={cn(getInputCls(!!errors.status), 'cursor-pointer')}>
             <option value={Status.TODO}>To Do</option>
             <option value={Status.IN_PROGRESS}>In Progress</option>
             <option value={Status.DONE}>Done</option>
@@ -127,12 +98,7 @@ export function TaskForm({ initial, onSave, onClose }: Props) {
           >
             Ưu tiên
           </label>
-          <select
-            {...register('priority')}
-            className={`${inputCls} cursor-pointer ${
-              errors.priority ? 'border-red-300' : 'border-slate-200 focus:border-indigo-400'
-            }`}
-          >
+          <select {...register('priority')} className={cn(getInputCls(!!errors.priority), 'cursor-pointer')}>
             <option value={Priority.LOW}>Low</option>
             <option value={Priority.MEDIUM}>Medium</option>
             <option value={Priority.HIGH}>High</option>
@@ -147,16 +113,11 @@ export function TaskForm({ initial, onSave, onClose }: Props) {
           >
             Deadline
           </label>
-          <input
-            type='date'
-            {...register('deadline')}
-            className={`${inputCls} ${errors.deadline ? 'border-red-300' : 'border-slate-200 focus:border-indigo-400'}`}
-          />
+          <input type='date' {...register('deadline')} className={getInputCls(!!errors.deadline)} />
           {errors.deadline && <p className='text-red-400 text-[11px] mt-1 font-medium'>{errors.deadline.message}</p>}
         </div>
       </div>
 
-      {/* BUTTONS */}
       <div className='flex gap-2 justify-end'>
         <button
           type='button'
@@ -168,7 +129,6 @@ export function TaskForm({ initial, onSave, onClose }: Props) {
         </button>
         <button
           type='submit'
-          // type submit → bấm vào sẽ trigger handleSubmit → validate → onSubmit
           className='px-5 py-2 rounded-xl text-sm font-bold transition-colors
             bg-indigo-600 text-white hover:bg-indigo-700 shadow shadow-indigo-200'
         >

@@ -2,20 +2,22 @@ import { useMemo } from 'react'
 import { Status } from '~/@types'
 import type { FilterState, TaskStats, Task } from '~/@types'
 import { useTaskStore } from '~/store/useTaskStore'
+import { isPast, isToday, isWithinInterval, addDays, startOfDay } from 'date-fns'
 
-const isOverdue = (deadline: string, status: Status): boolean =>
-  !!deadline &&
-  status !== Status.DONE &&
-  new Date(deadline) < new Date() &&
-  new Date(deadline).toDateString() !== new Date().toDateString()
-
-const isNear = (deadline: string, status: Status): boolean => {
+export const isOverdue = (deadline: string, status: Status): boolean => {
   if (!deadline || status === Status.DONE) return false
-  const diff = new Date(deadline).getTime() - Date.now()
-  return diff > 0 && diff < 3 * 24 * 60 * 60 * 1000 // trong 3 ngày
+  const date = new Date(deadline)
+  return isPast(date) && !isToday(date)
 }
 
-export { isOverdue, isNear }
+export const isNear = (deadline: string, status: Status): boolean => {
+  if (!deadline || status === Status.DONE) return false
+  const date = new Date(deadline)
+  return isWithinInterval(date, {
+    start: startOfDay(new Date()),
+    end: addDays(new Date(), 3)
+  })
+}
 
 export function useTaskFilter(filter: FilterState) {
   const tasks = useTaskStore((state) => state.tasks)

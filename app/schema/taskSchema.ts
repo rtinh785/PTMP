@@ -28,5 +28,4 @@ export const taskSchema = yup.object({
     })
 })
 
-// Infer type từ schema — dùng thay cho TaskForm type trong form
 export type TaskSchemaType = yup.InferType<typeof taskSchema>

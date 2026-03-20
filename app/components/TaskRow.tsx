@@ -4,6 +4,7 @@ import IconBtn from '~/components/IconBtn'
 import PriorityLabel from '~/components/PriorityLabel'
 import StatusPill from '~/components/StatusPill'
 import { isOverdue, isNear } from '~/hooks/useTaskFilter'
+import { cn } from '~/libs/cn'
 import { useTaskStore } from '~/store/useTaskStore'
 
 interface Props {
@@ -37,9 +38,13 @@ const TaskRow = ({ task, onEdit, onDelete }: Props) => {
     >
       <button
         onClick={() => handleCycleStatus({ task })}
-        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center
-          shrink-0 transition-all duration-150
-          ${done ? 'bg-emerald-500 border-emerald-500' : inProg ? 'border-amber-400' : 'border-indigo-400'}`}
+        className={cn(
+          'w-5 h-5 rounded-full border-2 flex items-center justify-center',
+          'shrink-0 transition-all duration-150',
+          done && 'bg-emerald-500 border-emerald-500',
+          inProg && 'border-amber-400',
+          !done && !inProg && 'border-indigo-400'
+        )}
       >
         {done && <span className='text-white text-[10px]'>✓</span>}
         {inProg && <span className='w-2 h-2 rounded-full bg-amber-400 block' />}
@@ -48,10 +53,7 @@ const TaskRow = ({ task, onEdit, onDelete }: Props) => {
       {/* Nội dung */}
       <div className='flex-1 min-w-0'>
         <div className='flex items-center gap-2 flex-wrap'>
-          <span
-            className={`font-semibold text-sm text-slate-800
-            ${done ? 'line-through opacity-50' : ''}`}
-          >
+          <span className={cn('font-semibold text-sm text-slate-800', done && 'line-through opacity-50')}>
             {task.title}
           </span>
           <StatusPill status={task.status} />

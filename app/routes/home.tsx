@@ -3,7 +3,7 @@ import type { ModalState, FilterState, Task } from '~/@types'
 import { Status, Priority } from '~/@types'
 import Modal from '~/components/Modal'
 import StatusSection from '~/components/StatusSection'
-
+import { toast } from 'sonner'
 import { STATUS_META } from '~/constants'
 import { useTaskFilter } from '~/hooks/useTaskFilter'
 import { useTaskStore } from '~/store/useTaskStore'
@@ -38,6 +38,17 @@ export default function Home() {
 
   const hasFilter = filter.search || filter.status !== 'All' || filter.priority !== 'All'
   const donePct = stats.total ? Math.round((stats.done / stats.total) * 100) : 0
+
+  const onSave = (data: TaskSchemaType) => {
+    if (modal === 'add') {
+      addTask(data)
+      toast.success('Tạo task thành công!')
+    } else {
+      updateTask((modal as Task).id, data)
+      toast.success('Cập nhật task thành công!')
+    }
+    setModal(null)
+  }
 
   return (
     <>
@@ -229,13 +240,7 @@ export default function Home() {
       {/* ADD / EDIT MODAL */}
       {modal && (
         <Modal title={modal === 'add' ? 'Tạo công việc mới' : 'Chỉnh sửa công việc'} onClose={() => setModal(null)}>
-          <TaskForm
-            initial={modal === 'add' ? undefined : modal}
-            onSave={(data: TaskSchemaType) => {
-              return modal === 'add' ? addTask(data) : updateTask((modal as Task).id, data)
-            }}
-            onClose={() => setModal(null)}
-          />
+          <TaskForm initial={modal === 'add' ? undefined : modal} onSave={onSave} onClose={() => setModal(null)} />
         </Modal>
       )}
 
@@ -257,6 +262,7 @@ export default function Home() {
               onClick={() => {
                 deleteTask(delId)
                 setDelId(null)
+                toast.error('Đã xóa task')
               }}
               className='px-5 py-2 rounded-xl bg-red-500 text-white text-sm font-bold
                 hover:bg-red-600 transition-colors'

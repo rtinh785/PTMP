@@ -6,7 +6,6 @@ interface Props {
   children: React.ReactNode
 }
 const Modal = ({ title, onClose, children }: Props) => {
-  // Nhấn Escape để đóng
   useEffect(() => {
     const fn = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Status, Task } from '~/@types'
 import TaskRow from '~/components/TaskRow'
 import { STATUS_META } from '~/constants'
+import { cn } from '~/libs/cn'
 
 interface Props {
   status: Status
@@ -18,16 +19,16 @@ const StatusSection = ({ status, tasks, onEdit, onDelete, defaultOpen = false }:
     <div className='mb-1'>
       <button
         onClick={() => setOpen((o) => !o)}
-        className={`w-full flex items-center gap-2.5 px-4 py-2.5 rounded-lg
-          transition-colors duration-150 ${open ? m.bg : 'hover:bg-slate-50'}`}
+        className={cn(
+          'w-full flex items-center gap-2.5 px-4 py-2.5 rounded-lg',
+          'transition-colors duration-150',
+          open ? m.bg : 'hover:bg-slate-50'
+        )}
       >
         <span className={`w-2 h-2 rounded-full ${m.dot}`} />
         <span className={`text-[11px] font-black uppercase tracking-widest ${m.color}`}>{m.label}</span>
         <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full text-white ${m.dot}`}>{tasks.length}</span>
-        <span
-          className={`ml-auto text-[11px] transition-transform duration-200
-          ${m.color} ${open ? 'rotate-90' : ''}`}
-        >
+        <span className={cn('ml-auto text-[11px] transition-transform duration-200', m.color, open && 'rotate-90')}>
           ▶
         </span>
       </button>
